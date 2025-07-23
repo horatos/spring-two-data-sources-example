@@ -26,6 +26,13 @@ public class AppTest {
     @Qualifier("dataSourceTwo")
     private DataSource dataSourceTwo;
 
+    @Autowired
+    @Qualifier("shardingDataSource")
+    private DataSource shardingDataSource;
+
+    @Autowired
+    private Controller controller;
+
     @Test
     public void testApp() {
         assertTrue(true);
@@ -35,5 +42,20 @@ public class AppTest {
     public void dataSourcesAreInjected() {
         assertNotNull(dataSourceOne);
         assertNotNull(dataSourceTwo);
+        assertNotNull(shardingDataSource);
+        assertNotNull(controller);
+    }
+
+    @Test
+    public void routingDataSourceWorks() throws Exception {
+        ShardContext.setShard("ONE");
+        try (var conn = shardingDataSource.getConnection()) {
+            assertTrue(conn.getMetaData().getURL().contains("db1"));
+        }
+        ShardContext.setShard("TWO");
+        try (var conn = shardingDataSource.getConnection()) {
+            assertTrue(conn.getMetaData().getURL().contains("db2"));
+        }
+        ShardContext.clear();
     }
 }
