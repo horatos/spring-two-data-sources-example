@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,23 +24,6 @@ public class Controller {
         this.dataSource = dataSource;
     }
 
-    @PostConstruct
-    public void initTables() throws SQLException {
-        // create table on both shards
-        createTableForShard("ONE");
-        createTableForShard("TWO");
-        ShardContext.clear();
-    }
-
-    private void createTableForShard(String shard) throws SQLException {
-        ShardContext.setShard(shard);
-        try (var conn = dataSource.getConnection();
-             var stmt = conn.createStatement()) {
-            stmt.executeUpdate(
-                    "CREATE TABLE IF NOT EXISTS entries(" +
-                            "id INT PRIMARY KEY, s VARCHAR(255))");
-        }
-    }
 
     public String get(int id) throws SQLException {
         String shard = (id % 2 == 0) ? "ONE" : "TWO";
