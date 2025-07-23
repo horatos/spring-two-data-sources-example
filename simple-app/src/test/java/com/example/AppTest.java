@@ -1,6 +1,7 @@
 package com.example;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,6 +20,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = App.class)
 public class AppTest {
+
+    @BeforeAll
+    static void enableSpringDebugLogs() {
+        java.util.logging.Logger root = java.util.logging.Logger.getLogger("");
+        root.setLevel(java.util.logging.Level.FINE);
+        for (java.util.logging.Handler h : root.getHandlers()) {
+            h.setLevel(java.util.logging.Level.FINE);
+        }
+        java.util.logging.Logger.getLogger("org.springframework").setLevel(java.util.logging.Level.FINE);
+    }
     @Autowired
     @Qualifier("dataSourceOne")
     private DataSource dataSourceOne;
