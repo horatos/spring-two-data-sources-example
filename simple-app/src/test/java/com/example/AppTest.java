@@ -31,6 +31,7 @@ public class AppTest {
         Logger spring = (Logger) LoggerFactory.getLogger("org.springframework");
         spring.setLevel(Level.DEBUG);
     }
+
     @Autowired
     @Qualifier("dataSourceOne")
     private DataSource dataSourceOne;
@@ -45,11 +46,6 @@ public class AppTest {
 
     @Autowired
     private Controller controller;
-
-    @Test
-    public void testApp() {
-        assertTrue(true);
-    }
 
     @Test
     public void dataSourcesAreInjected() {

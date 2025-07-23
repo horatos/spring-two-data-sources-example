@@ -25,16 +25,15 @@ import org.slf4j.LoggerFactory;
 @ComponentScan("com.example")
 @EnableTransactionManagement
 public class App {
-    private static final Logger log = LoggerFactory.getLogger(App.class);
+
     public static void main( String[] args )
     {
-        log.info("Hello World!");
     }
 
     @Bean(name = "dataSourceOne")
     public DataSource dataSourceOne() {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1");
+        ds.setURL("jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1;TRACE_LEVEL_SYSTEM_OUT=2");
         ds.setUser("sa");
         ds.setPassword("");
         return ds;
@@ -43,7 +42,7 @@ public class App {
     @Bean(name = "dataSourceTwo")
     public DataSource dataSourceTwo() {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:db2;DB_CLOSE_DELAY=-1");
+        ds.setURL("jdbc:h2:mem:db2;DB_CLOSE_DELAY=-1;TRACE_LEVEL_SYSTEM_OUT=2");
         ds.setUser("sa");
         ds.setPassword("");
         return ds;

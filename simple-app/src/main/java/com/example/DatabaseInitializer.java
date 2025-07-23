@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
+
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
@@ -34,9 +35,7 @@ public class DatabaseInitializer {
         ShardContext.setShard(shard);
         try (var conn = dataSource.getConnection();
              var stmt = conn.createStatement()) {
-            stmt.executeUpdate(
-                    "CREATE TABLE IF NOT EXISTS entries(" +
-                            "id INT PRIMARY KEY, s VARCHAR(255))");
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS entries(id INT PRIMARY KEY, s VARCHAR(255))");
         }
     }
 }
