@@ -13,11 +13,13 @@ public class Controller {
 
     private final Service service;
     private final TxService txService;
+    private final AnnotatedService annotatedService;
 
     @Autowired
-    public Controller(Service service, TxService txService) {
+    public Controller(Service service, TxService txService, AnnotatedService annotatedService) {
         this.service = service;
         this.txService = txService;
+        this.annotatedService = annotatedService;
     }
 
     public String get(int id) throws SQLException {
@@ -26,6 +28,22 @@ public class Controller {
 
     public void post(int id, String s) throws SQLException {
         service.post(id, s);
+    }
+
+    public String getWithAnnotations(int id) throws SQLException {
+        if (id % 2 == 0) {
+            return annotatedService.getFromOne(id);
+        } else {
+            return annotatedService.getFromTwo(id);
+        }
+    }
+
+    public void postWithAnnotations(int id, String s) throws SQLException {
+        if (id % 2 == 0) {
+            annotatedService.postToOne(id, s);
+        } else {
+            annotatedService.postToTwo(id, s);
+        }
     }
 
     public String getWithTransactionTemplate(int id) throws SQLException {
