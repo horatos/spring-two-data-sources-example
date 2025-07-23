@@ -75,4 +75,12 @@ public class AppTest {
         assertEquals("even", controller.get(100));
         assertEquals("odd", controller.get(101));
     }
+
+    @Test
+    public void postAndGetWithTransactionTemplate() throws Exception {
+        controller.postWithTransactionTemplate(200, "even-tx");
+        controller.postWithTransactionTemplate(201, "odd-tx");
+        assertEquals("even-tx", controller.getWithTransactionTemplate(200));
+        assertEquals("odd-tx", controller.getWithTransactionTemplate(201));
+    }
 }

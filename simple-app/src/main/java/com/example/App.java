@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.h2.jdbcx.JdbcDataSource;
@@ -64,5 +65,15 @@ public class App {
     public PlatformTransactionManager transactionManager(
             @Qualifier("shardingDataSource") DataSource ds) {
         return new DataSourceTransactionManager(ds);
+    }
+
+    @Bean(name = "txTemplateOne")
+    public TransactionTemplate txTemplateOne(@Qualifier("dataSourceOne") DataSource ds) {
+        return new TransactionTemplate(new DataSourceTransactionManager(ds));
+    }
+
+    @Bean(name = "txTemplateTwo")
+    public TransactionTemplate txTemplateTwo(@Qualifier("dataSourceTwo") DataSource ds) {
+        return new TransactionTemplate(new DataSourceTransactionManager(ds));
     }
 }
