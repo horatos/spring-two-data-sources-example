@@ -83,4 +83,12 @@ public class AppTest {
         assertEquals("even-tx", controller.getWithTransactionTemplate(200));
         assertEquals("odd-tx", controller.getWithTransactionTemplate(201));
     }
+
+    @Test
+    public void postAndGetWithAnnotations() throws Exception {
+        controller.postWithAnnotations(300, "even-ann");
+        controller.postWithAnnotations(301, "odd-ann");
+        assertEquals("even-ann", controller.getWithAnnotations(300));
+        assertEquals("odd-ann", controller.getWithAnnotations(301));
+    }
 }
