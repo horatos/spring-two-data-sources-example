@@ -2,6 +2,9 @@ package com.example;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,12 +26,10 @@ public class AppTest {
 
     @BeforeAll
     static void enableSpringDebugLogs() {
-        java.util.logging.Logger root = java.util.logging.Logger.getLogger("");
-        root.setLevel(java.util.logging.Level.FINE);
-        for (java.util.logging.Handler h : root.getHandlers()) {
-            h.setLevel(java.util.logging.Level.FINE);
-        }
-        java.util.logging.Logger.getLogger("org.springframework").setLevel(java.util.logging.Level.FINE);
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.DEBUG);
+        Logger spring = (Logger) LoggerFactory.getLogger("org.springframework");
+        spring.setLevel(Level.DEBUG);
     }
     @Autowired
     @Qualifier("dataSourceOne")

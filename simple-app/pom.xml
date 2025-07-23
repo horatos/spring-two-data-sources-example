@@ -53,6 +53,11 @@
       <artifactId>spring-tx</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+
     <!-- In-memory database for tests -->
     <dependency>
       <groupId>com.h2database</groupId>
