@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test for simple App.
@@ -57,5 +58,13 @@ public class AppTest {
             assertTrue(conn.getMetaData().getURL().contains("db2"));
         }
         ShardContext.clear();
+    }
+
+    @Test
+    public void postAndGetWorksAcrossShards() throws Exception {
+        controller.post(100, "even");
+        controller.post(101, "odd");
+        assertEquals("even", controller.get(100));
+        assertEquals("odd", controller.get(101));
     }
 }
