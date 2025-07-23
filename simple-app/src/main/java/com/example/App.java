@@ -1,8 +1,12 @@
 package com.example;
 
+import jakarta.persistence.EntityManagerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -10,25 +14,17 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.h2.jdbcx.JdbcDataSource;
+
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
-/**
- * Hello world!
- *
- */
 @Configuration
 @ComponentScan("com.example")
 @EnableTransactionManagement
 public class App {
 
-    public static void main( String[] args )
-    {
+    public static void main(String[] args) {
     }
 
     @Bean(name = "dataSourceOne")
@@ -67,13 +63,43 @@ public class App {
         return new DataSourceTransactionManager(ds);
     }
 
+    @Bean(name = "emfOne")
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryOne(@Qualifier("dataSourceOne") DataSource ds) {
+        final var emf = new LocalContainerEntityManagerFactoryBean();
+        emf.setDataSource(ds);
+        emf.setPackagesToScan("com.example");
+        emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        emf.setJpaPropertyMap(Map.of(
+                "hibernate.hbm2ddl.auto", "update",
+                "hibernate.dialect", "org.hibernate.dialect.H2Dialect"
+        ));
+        emf.afterPropertiesSet();
+
+        return emf;
+    }
+
+    @Bean(name = "emfTwo")
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryTwo(@Qualifier("dataSourceTwo") DataSource ds) {
+        final var emf = new LocalContainerEntityManagerFactoryBean();
+        emf.setDataSource(ds);
+        emf.setPackagesToScan("com.example");
+        emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        emf.setJpaPropertyMap(Map.of(
+                "hibernate.hbm2ddl.auto", "update",
+                "hibernate.dialect", "org.hibernate.dialect.H2Dialect"
+        ));
+        emf.afterPropertiesSet();
+
+        return emf;
+    }
+
     @Bean(name = "txTemplateOne")
-    public TransactionTemplate txTemplateOne(@Qualifier("dataSourceOne") DataSource ds) {
-        return new TransactionTemplate(new DataSourceTransactionManager(ds));
+    public TransactionTemplate txTemplateOne(@Qualifier("emfOne") EntityManagerFactory emf) {
+        return new TransactionTemplate(new JpaTransactionManager(emf));
     }
 
     @Bean(name = "txTemplateTwo")
-    public TransactionTemplate txTemplateTwo(@Qualifier("dataSourceTwo") DataSource ds) {
-        return new TransactionTemplate(new DataSourceTransactionManager(ds));
+    public TransactionTemplate txTemplateTwo(@Qualifier("emfTwo") EntityManagerFactory emf) {
+        return new TransactionTemplate(new JpaTransactionManager(emf));
     }
 }
