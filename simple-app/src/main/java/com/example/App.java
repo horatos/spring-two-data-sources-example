@@ -3,6 +3,10 @@ package com.example;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.h2.jdbcx.JdbcDataSource;
 import javax.sql.DataSource;
@@ -16,6 +20,7 @@ import java.util.Map;
  */
 @Configuration
 @ComponentScan("com.example")
+@EnableTransactionManagement
 public class App {
     public static void main( String[] args )
     {
@@ -50,5 +55,11 @@ public class App {
         ds.setDefaultTargetDataSource(dataSourceOne());
         ds.afterPropertiesSet();
         return ds;
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager(
+            @Qualifier("shardingDataSource") DataSource ds) {
+        return new DataSourceTransactionManager(ds);
     }
 }
