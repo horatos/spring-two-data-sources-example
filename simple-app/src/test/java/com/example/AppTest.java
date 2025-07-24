@@ -13,9 +13,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for simple App.
@@ -74,6 +78,60 @@ public class AppTest {
         controller.post(101, "odd");
         assertEquals("even", controller.get(100));
         assertEquals("odd", controller.get(101));
+    }
+
+    @Test
+    public void postAndGetWorksAcrossShardsInTwoDifferentThreads() throws Exception {
+        final var thread1Throwable = new AtomicReference<Throwable>();
+        final var thread2Throwable = new AtomicReference<Throwable>();
+
+        final var thread1 = new Thread(() -> {
+            try {
+                controller.post(110, "even");
+                assertEquals("even", controller.get(100));
+            } catch (Throwable e) {
+                thread1Throwable.set(e);
+            }
+        });
+        final var thread2 = new Thread(() -> {
+            try {
+                controller.post(111, "odd");
+                assertEquals("odd", controller.get(101));
+            } catch (Throwable e) {
+                thread2Throwable.set(e);
+            }
+        });
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+
+        assertNull(thread1Throwable.get(), "thread1 aborted");
+        assertNull(thread2Throwable.get(), "thread2 aborted");
+    }
+
+    @Test
+    public void postAndGetWorksAcrossShardsInSeveralThreads() throws Exception {
+        final var tasks = new ArrayList<Callable<Object>>();
+
+        for ( int i = 0 ; i < 50 ; i++ ) {
+            int id = i;
+            final var s = (i % 2) == 0 ? "even" : "odd";
+            tasks.add(() -> {
+                controller.post(id, s);
+                Thread.sleep(10);
+                assertEquals(s, controller.get(id));
+                return null;
+            });
+        }
+
+        final var executor = Executors.newFixedThreadPool(2);
+        final var result = executor.invokeAll(tasks);
+        for (Future<Object> future : result) {
+            assertDoesNotThrow(() -> future.get());
+        }
     }
 
     @Test
