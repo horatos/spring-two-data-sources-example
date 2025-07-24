@@ -13,9 +13,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for simple App.
@@ -74,6 +75,38 @@ public class AppTest {
         controller.post(101, "odd");
         assertEquals("even", controller.get(100));
         assertEquals("odd", controller.get(101));
+    }
+
+    @Test
+    public void postAndGetWorksAcrossShardsInDifferentThreads() throws Exception {
+        final var thread1Throwable = new AtomicReference<Throwable>();
+        final var thread2Throwable = new AtomicReference<Throwable>();
+
+        final var thread1 = new Thread(() -> {
+            try {
+                controller.post(100, "even");
+                assertEquals("even", controller.get(100));
+            } catch (Throwable e) {
+                thread1Throwable.set(e);
+            }
+        });
+        final var thread2 = new Thread(() -> {
+            try {
+                controller.post(101, "odd");
+                assertEquals("odd", controller.get(101));
+            } catch (Throwable e) {
+                thread2Throwable.set(e);
+            }
+        });
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+
+        assertNull(thread1Throwable.get(), "thread1 aborted");
+        assertNull(thread2Throwable.get(), "thread2 aborted");
     }
 
     @Test
