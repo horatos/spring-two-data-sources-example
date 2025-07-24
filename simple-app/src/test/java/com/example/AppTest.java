@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -88,7 +87,7 @@ public class AppTest {
 
         final var thread1 = new Thread(() -> {
             try {
-                controller.post(100, "even");
+                controller.post(110, "even");
                 assertEquals("even", controller.get(100));
             } catch (Throwable e) {
                 thread1Throwable.set(e);
@@ -96,7 +95,7 @@ public class AppTest {
         });
         final var thread2 = new Thread(() -> {
             try {
-                controller.post(101, "odd");
+                controller.post(111, "odd");
                 assertEquals("odd", controller.get(101));
             } catch (Throwable e) {
                 thread2Throwable.set(e);
