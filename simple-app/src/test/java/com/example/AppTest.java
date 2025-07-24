@@ -88,7 +88,7 @@ public class AppTest {
         final var thread1 = new Thread(() -> {
             try {
                 controller.post(110, "even");
-                assertEquals("even", controller.get(100));
+                assertEquals("even", controller.get(110));
             } catch (Throwable e) {
                 thread1Throwable.set(e);
             }
@@ -96,7 +96,7 @@ public class AppTest {
         final var thread2 = new Thread(() -> {
             try {
                 controller.post(111, "odd");
-                assertEquals("odd", controller.get(101));
+                assertEquals("odd", controller.get(111));
             } catch (Throwable e) {
                 thread2Throwable.set(e);
             }
