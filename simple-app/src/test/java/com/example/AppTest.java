@@ -13,6 +13,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
 
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -78,7 +82,7 @@ public class AppTest {
     }
 
     @Test
-    public void postAndGetWorksAcrossShardsInDifferentThreads() throws Exception {
+    public void postAndGetWorksAcrossShardsInTwoDifferentThreads() throws Exception {
         final var thread1Throwable = new AtomicReference<Throwable>();
         final var thread2Throwable = new AtomicReference<Throwable>();
 
@@ -107,6 +111,28 @@ public class AppTest {
 
         assertNull(thread1Throwable.get(), "thread1 aborted");
         assertNull(thread2Throwable.get(), "thread2 aborted");
+    }
+
+    @Test
+    public void postAndGetWorksAcrossShardsInSeveralThreads() throws Exception {
+        final var tasks = new ArrayList<Callable<Object>>();
+
+        for ( int i = 0 ; i < 50 ; i++ ) {
+            int id = i;
+            final var s = (i % 2) == 0 ? "even" : "odd";
+            tasks.add(() -> {
+                controller.post(id, s);
+                Thread.sleep(10);
+                assertEquals(s, controller.get(id));
+                return null;
+            });
+        }
+
+        final var executor = Executors.newFixedThreadPool(2);
+        final var result = executor.invokeAll(tasks);
+        for (Future<Object> future : result) {
+            assertDoesNotThrow(() -> future.get());
+        }
     }
 
     @Test
