@@ -3,6 +3,7 @@ package com.example;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
@@ -13,7 +14,7 @@ import java.sql.SQLException;
 /**
  * Service layer handling simple JDBC access.
  */
-@org.springframework.stereotype.Service
+@Component
 public class Service {
 
     private final DataSource dataSource;
