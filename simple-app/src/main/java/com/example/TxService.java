@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.sql.SQLException;
-
 /**
  * Service handling operations that require a TransactionTemplate and JPA.
  */
@@ -31,41 +29,24 @@ public class TxService {
         this.txTemplateTwo = txTemplateTwo;
     }
 
-    public String getWithTransactionTemplate(int id) throws SQLException {
+    public String getWithTransactionTemplate(int id) {
         EntityManager em = (id % 2 == 0) ? entityManagerOne : entityManagerTwo;
         TransactionTemplate tt = (id % 2 == 0) ? txTemplateOne : txTemplateTwo;
-        try {
-            return tt.execute(status -> {
-                Entry entry = em.find(Entry.class, id);
-                if (entry == null) {
-                    return null;
-                } else {
-                    return entry.s;
-                }
-            });
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof SQLException se) {
-                throw se;
-            }
-            throw e;
-        }
+        return tt.execute(status -> {
+            Entry entry = em.find(Entry.class, id);
+            return entry == null ? null : entry.s;
+        });
     }
 
-    public void postWithTransactionTemplate(int id, String s) throws SQLException {
+    public void postWithTransactionTemplate(int id, String s) {
         EntityManager em = (id % 2 == 0) ? entityManagerOne : entityManagerTwo;
         TransactionTemplate tt = (id % 2 == 0) ? txTemplateOne : txTemplateTwo;
-        try {
-            tt.executeWithoutResult(status -> {
-                Entry entry = new Entry();
-                entry.id = id;
-                entry.s = s;
-                em.persist(entry);
-            });
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof SQLException se) {
-                throw se;
-            }
-            throw e;
-        }
+
+        tt.executeWithoutResult(status -> {
+            Entry entry = new Entry();
+            entry.id = id;
+            entry.s = s;
+            em.persist(entry);
+        });
     }
 }
